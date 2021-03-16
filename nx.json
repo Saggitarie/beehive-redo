@@ -1,14 +1,9 @@
 {
   "npmScope": "beehive-redo",
-  "affected": {
-    "defaultBase": "main"
-  },
+  "affected": { "defaultBase": "main" },
   "implicitDependencies": {
     "workspace.json": "*",
-    "package.json": {
-      "dependencies": "*",
-      "devDependencies": "*"
-    },
+    "package.json": { "dependencies": "*", "devDependencies": "*" },
     "tsconfig.base.json": "*",
     "tslint.json": "*",
     ".eslintrc.json": "*",
@@ -25,5 +20,5 @@
       }
     }
   },
-  "projects": {}
+  "projects": { "api": { "tags": [] }, "core": { "tags": [] } }
 }

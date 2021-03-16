@@ -14,7 +14,8 @@ import { validationSchema } from "./config/validation";
     }),
     GraphQLModule.forRoot({
       autoSchemaFile: true,
-      playground: true
+      playground: true,
+      introspection: true
     })
   ],
   controllers: [],

@@ -20,5 +20,5 @@
       }
     }
   },
-  "projects": { "api": { "tags": [] }, "core": { "tags": [] }, "course": { "tags": [] } }
+  "projects": { "api": { "tags": [] }, "core": { "tags": [] }, "course": { "tags": [] }, "data": { "tags": [] } }
 }

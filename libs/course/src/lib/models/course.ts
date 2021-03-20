@@ -1,19 +1,20 @@
 import {ObjectType, Field} from "@nestjs/graphql"
+import { Lesson } from "./lesson"
 
 @ObjectType()
 export class Course {
-  @Field({nullable: true})
+  @Field({ nullable: true })
   id?: string
 
-  @Field({nullable:true})
+  @Field({ nullable: true })
   title?: string
 
-  @Field({nullable:true})
+  @Field({ nullable: true })
   description?: string
 
-  @Field({nullable:true})
+  @Field({ nullable: true })
   imageUrl?: string
 
-  @Field({nullable: true})
-  content?: string
+  @Field(() => [Lesson], { nullable: true })
+  lessons?: Lesson[]
 }

@@ -1,10 +1,10 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, NotFoundException } from "@nestjs/common";
+import { DataService } from "@beehive-redo/data";
 import { CreateCourseInput } from "./dto/create-course-input";
 import { CreateLessonInput } from "./dto/create-lesson-input";
 import { UpdateCourseInput } from "./dto/update-course-input";
 import { UpdateLessonInput } from "./dto/update-lesson-input";
 import { Course } from "./models/course";
-import { Lesson } from "./models/lesson";
 
 @Injectable()
 export class CourseService {
@@ -19,100 +19,86 @@ export class CourseService {
     ]}
   ]
 
+  constructor(private readonly data: DataService){}
+
   public courses(){
-    return this.items
+    return this.data.course.findMany({ include: {lessons: true}})
   }
 
-  public course(id: string){
-    return this.items.find(item => item.id === id)
+  public async course(id: number){
+    const found = await this.data.course.findUnique({
+      where: {
+        id: id
+      }
+    })
+
+    if(!found){
+      throw new NotFoundException(`Course with id ${id} not found.`)
+    }
+
+    return found
   }
 
   public createCourse(input: CreateCourseInput){
-    const newCourse = {
-      id: Date.now().toString(),
-      ...input
-    }
-
-    this.items.push(newCourse)
-    return newCourse
+    return this.data.course.create({
+      data: {...input }
+    })
   }
 
-  public updateCourse(id: string, input: UpdateCourseInput, lessons: Lesson[]){
-    const course = this.course(id)
-    const updated: Course = {
-      ...course,
-      ...input,
-      lessons: lessons ? lessons : course.lessons
-    }
+  public async updateCourse(id: number, input: UpdateCourseInput){
+    const course = await this.course(id)
 
-    this.items = this.items.map(item => {
-      if(item.id === id){
-        return updated
+    console.log("input", input)
+
+    return this.data.course.update({
+      where: { id: course.id },
+      data: {
+        ...input
       }
-
-      return item
     })
 
-    return updated
   }
 
-  public deleteCourse(id: string){
-    const course = this.course(id)
-
-    if(!course){
-      return false
-    }
-
-    this.items = this.items.filter(item => item.id !== id)
-    return true
-  }
-
-  public createLesson(courseId: string, input: CreateLessonInput){
-    const newLesson = {
-      id: Date.now().toString(),
-      ...input
-    }
-
-    const course = this.course(courseId)
-    this.updateCourse(courseId, {}, [...course.lessons, newLesson])
-
-    return newLesson
-  }
-
-  public updateLesson(courseId: string, lessonId: string, input: UpdateLessonInput){
-    const course = this.course(courseId)
-    const lesson = course.lessons.find(item => item.id === lessonId)
-
-    const updated: Lesson = {
-      ...lesson,
-      ...input
-    }
-
-    course.lessons = course.lessons.map(item => {
-      if(item.id === lessonId){
-        return updated
+  public async deleteCourse(id: number){
+    const deleted = await this.data.course.delete({
+      where: {
+        id,
       }
-      return item
     })
 
-    return updated
+    return !!deleted
   }
 
-  public deleteLesson(courseId: string, lessonId: string, input: UpdateLessonInput){
-    const course = this.course(courseId)
+  public async createLesson(courseId: number, input: CreateLessonInput){
+    const course = await this.course(courseId)
 
-    if(!course){
-      return false
-    }
 
-    const lesson = course.lessons.find(item => item.id === lessonId)
+    return this.data.lesson.create({
+      data: {
+        course: {
+          connect: {id: course.id}
+        },
+        ...input
+      }
+    })
+  }
 
-    if(!lesson){
-      return false
-    }
+  public updateLesson(lessonId: number, input: UpdateLessonInput){
+    return this.data.lesson.update({
+      where: {id: lessonId},
+      data: {
+        ...input
+      }
+    })
+  }
 
-    course.lessons = course.lessons.filter(item => item.id !== lessonId)
+  public async deleteLesson(lessonId: number){
+    const deleted = await this.data.lesson.delete({
+      where: {
+        id: lessonId
+      }
+    })
 
-    return true
+    return !!deleted
   }
 }

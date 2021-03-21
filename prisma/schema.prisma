@@ -18,3 +18,20 @@ model User {
   lastName  String?
   password  String
 }
+
+model Course {
+  id          Int      @id @default(autoincrement())
+  title       String?
+  description String?
+  imageUrl    String?
+  lessons     Lesson[]
+}
+
+model Lesson {
+  id          Int     @id @default(autoincrement())
+  title       String
+  description String?
+  content     String?
+  course      Course  @relation(fields: [courseId], references: [id])
+  courseId    Int
+}
